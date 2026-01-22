@@ -1,2 +1,261 @@
-# FLUXPOINT-AI-
-This is an AI where people can learn english.Its very helpful for student who are poor in english.
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FLUXPOINT AI - English Learning</title>
+<style>
+    body {
+        font-family: Arial, sans-serif;
+        background-color: white;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+    }
+    .header {
+        background-color: black;
+        color: white;
+        padding: 20px;
+        text-align: center;
+        font-size: 24px;
+        font-weight: bold;
+    }
+    .chat-container {
+        flex: 1;
+        padding: 20px;
+        overflow-y: auto;
+        display: flex;
+        flex-direction: column;
+    }
+    .message {
+        max-width: 70%;
+        margin-bottom: 10px;
+        padding: 10px 15px;
+        border-radius: 20px;
+        line-height: 1.4;
+    }
+    .bot-message {
+        background-color: #f1f1f1;
+        align-self: flex-start;
+    }
+    .user-message {
+        background-color: #0084ff;
+        color: white;
+        align-self: flex-end;
+    }
+    .input-area {
+        display: flex;
+        padding: 10px;
+        border-top: 1px solid #ccc;
+    }
+    .input-area input {
+        flex: 1;
+        padding: 10px;
+        font-size: 16px;
+        border-radius: 20px;
+        border: 1px solid #ccc;
+        outline: none;
+    }
+    .input-area button {
+        padding: 10px 20px;
+        margin-left: 10px;
+        border: none;
+        background-color: black;
+        color: white;
+        border-radius: 20px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+</style>
+</head>
+<body>
+
+<div class="header">FLUXPOINT AI</div>
+
+<div class="chat-container" id="chat">
+    <div class="message bot-message">
+        Hello! I am <b>Fluxpoint AI</b>, I am developed by <b>Apurba Roy</b>.<br>
+        How can I help you?<br>
+        Options:<br>1. Learning English Grammar<br>2. English Speaking Skills
+    </div>
+</div>
+
+<div class="input-area">
+    <input type="text" id="userInput" placeholder="Type your message here...">
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<script>
+const chat = document.getElementById('chat');
+const userInput = document.getElementById('userInput');
+
+const grammarLessons = [
+    {
+        topic: "Nouns",
+        content: "A noun is a person, place, thing, or idea. Examples: boy, school, book.",
+        questions: [
+            { q: "Is 'cat' a noun? (yes/no)", a: "yes" },
+            { q: "Is 'run' a noun? (yes/no)", a: "no" },
+            { q: "Is 'city' a noun? (yes/no)", a: "yes" }
+        ]
+    },
+    {
+        topic: "Pronouns",
+        content: "Pronouns replace nouns. Examples: he, she, it, they.",
+        questions: [
+            { q: "Does 'he' replace a noun? (yes/no)", a: "yes" },
+            { q: "Is 'they' a pronoun? (yes/no)", a: "yes" },
+            { q: "Is 'book' a pronoun? (yes/no)", a: "no" }
+        ]
+    },
+    {
+        topic: "Articles",
+        content: "Articles define nouns as specific or unspecific. Examples: a, an, the.",
+        questions: [
+            { q: "Is 'the' an article? (yes/no)", a: "yes" },
+            { q: "Is 'an' an article? (yes/no)", a: "yes" },
+            { q: "Is 'cat' an article? (yes/no)", a: "no" }
+        ]
+    },
+    {
+        topic: "Adjectives",
+        content: "Adjectives describe nouns. Examples: big, beautiful, fast.",
+        questions: [
+            { q: "Does 'beautiful' describe a noun? (yes/no)", a: "yes" },
+            { q: "Is 'run' an adjective? (yes/no)", a: "no" },
+            { q: "Is 'happy' an adjective? (yes/no)", a: "yes" }
+        ]
+    },
+    {
+        topic: "Verbs",
+        content: "A verb shows action or state. Examples: run, eat, is, have.",
+        questions: [
+            { q: "Is 'run' a verb? (yes/no)", a: "yes" },
+            { q: "Is 'apple' a verb? (yes/no)", a: "no" },
+            { q: "Is 'have' a verb? (yes/no)", a: "yes" }
+        ]
+    },
+    {
+        topic: "Tenses",
+        content: "Tenses show time of action: past, present, future. Examples: I eat (present), I ate (past), I will eat (future).",
+        questions: [
+            { q: "Is 'I ate' past tense? (yes/no)", a: "yes" },
+            { q: "Is 'I will eat' future tense? (yes/no)", a: "yes" },
+            { q: "Is 'I eat' past tense? (yes/no)", a: "no" }
+        ]
+    }
+];
+
+let state = {
+    stage: "options", // options / grammar / question / speaking
+    currentLesson: 0,
+    currentQuestion: 0
+};
+
+function addMessage(text, sender) {
+    const msg = document.createElement('div');
+    msg.classList.add('message');
+    msg.classList.add(sender === 'bot' ? 'bot-message' : 'user-message');
+    msg.innerHTML = text;
+    chat.appendChild(msg);
+    chat.scrollTop = chat.scrollHeight;
+}
+
+function sendMessage() {
+    const text = userInput.value.trim();
+    if (!text) return;
+    addMessage(text, 'user');
+    userInput.value = '';
+    processInput(text.toLowerCase());
+}
+
+function processInput(input) {
+    if (state.stage === "options") {
+        if (input.includes("1") || input.includes("grammar")) {
+            state.stage = "grammar";
+            state.currentLesson = 0;
+            state.currentQuestion = 0;
+            addMessage("Great! Let's start from the beginning.", "bot");
+            showGrammarLesson();
+        } else if (input.includes("2") || input.includes("speaking")) {
+            addMessage(
+                "Here are some tips for English Speaking Skills:<br>" +
+                "1. Practice daily.<br>" +
+                "2. Listen to English songs and podcasts.<br>" +
+                "3. Speak slowly and clearly.<br>" +
+                "4. Learn common phrases.<br>" +
+                "5. Don't fear mistakes.<br><br>" +
+                "Nice! How can I help you next?", 
+                "bot"
+            );
+        } else {
+            addMessage("Please select 1 for Learning English Grammar or 2 for English Speaking Skills.", "bot");
+        }
+    } else if (state.stage === "grammar" || state.stage === "question") {
+        handleGrammarInput(input);
+    }
+}
+
+function showGrammarLesson() {
+    const lesson = grammarLessons[state.currentLesson];
+    addMessage(`<b>${lesson.topic}</b>: ${lesson.content}<br>Now, answer these questions:`, "bot");
+    state.stage = "question";
+    state.currentQuestion = 0;
+    askQuestion();
+}
+
+function askQuestion() {
+    const lesson = grammarLessons[state.currentLesson];
+    const question = lesson.questions[state.currentQuestion];
+    addMessage(question.q, "bot");
+}
+
+function handleGrammarInput(input) {
+    const lesson = grammarLessons[state.currentLesson];
+    const question = lesson.questions[state.currentQuestion];
+    input = input.trim().toLowerCase();
+
+    if (input === question.a) {
+        addMessage("Very good!", "bot");
+    } else {
+        addMessage(`Oops! The correct answer is "${question.a}"`, "bot");
+    }
+
+    state.currentQuestion++;
+    if (state.currentQuestion < lesson.questions.length) {
+        askQuestion();
+    } else {
+        state.currentLesson++;
+        if (state.currentLesson < grammarLessons.length) {
+            addMessage("Next lesson coming up...", "bot");
+            setTimeout(showGrammarLesson, 1000);
+        } else {
+            addMessage("All grammar lessons completed! How can I help you next?", "bot");
+            state.stage = "options";
+        }
+    }
+}
+
+userInput.addEventListener("keydown", function(e){
+    if(e.key === "Enter"){
+        sendMessage();
+    }
+});
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
